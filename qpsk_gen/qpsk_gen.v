@@ -35,12 +35,101 @@ module top(
 
 endmodule // top
 
+module cordic(
+	input clk,
+	input reset,
+	input enable,
+	input [15:0] xi, yi,
+	output [15:0] xo, yo,
+	input [15:0] zi,
+	output [15:0] zo);
+
+    reg [17:0] x0, y0;
+    reg [14:0] z0;
+    wire [17:0] x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12;
+    wire [17:0] y1, y2, y3, y4, y5, y6, x7, x8, x9, x10, x11, x12;
+    wire [14:0] z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12;
+
+    wire [17:0] xi_ext = {{2{xi[15]}}, xi};
+    wire [17:0] yi_ext = {{2{yi[15]}}, yi};
+
+    `define c00 16'd8192
+    `define c01 16'd4836
+    `define c02 16'd2555
+    `define c03 16'd1297
+    `define c04 16'd651
+    `define c05 16'd326
+    `define c06 16'd163
+    `define c07 16'd81
+    `define c08 16'd41
+    `define c09 16'd20
+    `define c10 16'd10
+    `define c11 16'd5
+    `define c12 16'd3
+    `define c13 16'd1
+    `define c14 16'd1
+    `define c15 16'd0
+    `define c16 16'd0
+
+    always @(posedge clk)
+	    if (reset) begin
+		    x0 <= #1 0; y0 <= #1 0; z0 <= #1 0;
+            end
+            else if (enable) begin
+		    z0 <= #1 zi[14:0];
+		    case (zi[15:14])
+			    2'b00, 2'b11 :
+			    begin
+				    x0 <= #1 xi_ext;
+				    y0 <= #1 yi_ext;
+			    end
+			    2'b01, 2'b10 :
+			    begin
+				    x0 <= #1 -xi_ext;
+				    yp <= #1 -yi_ext;
+			    end
+		    endcase
+	    end
+
+	    cordic_stage #(18,17,0) cordic_stage0(clk, reset, enable, x0, y0, z0, `c00, x1, y1, z1);
+	    cordic_stage #(18,17,1) cordic_stage0(clk, reset, enable, x1, y1, z1, `c01, x2, y2, z2);
+	    cordic_stage #(18,17,2) cordic_stage0(clk, reset, enable, x2, y2, z2, `c02, x3, y3, z3);
+	    cordic_stage #(18,17,3) cordic_stage0(clk, reset, enable, x3, y3, z3, `c03, x4, y4, z4);
+	    cordic_stage #(18,17,4) cordic_stage0(clk, reset, enable, x4, y4, z4, `c04, x5, y5, z5);
+	    cordic_stage #(18,17,5) cordic_stage0(clk, reset, enable, x5, y5, z5, `c05, x6, y6, z6);
+	    cordic_stage #(18,17,6) cordic_stage0(clk, reset, enable, x6, y6, z6, `c06, x7, y7, z7);
+	    cordic_stage #(18,17,7) cordic_stage0(clk, reset, enable, x7, y7, z7, `c07, x8, y8, z8);
+	    cordic_stage #(18,17,8) cordic_stage0(clk, reset, enable, x8, y8, z8, `c08, x9, y9, z9);
+	    cordic_stage #(18,17,9) cordic_stage0(clk, reset, enable, x9, y9, z9, `c09, x10, y10, z10);
+	    cordic_stage #(18,17,10) cordic_stage0(clk, reset, enable, x10, y10, z10, `c10, x11, y11, z11);
+	    cordic_stage #(18,17,11) cordic_stage0(clk, reset, enable, x11, y11, z11, `c11, x12, y12, z12);
+
+	    assign xo = x12[16:1];
+	    assign yo = y12[16:1];
+	    assign zo = z12;
+
+endmodule // cordic
+
+module phase_acc(
+	input clk,
+	input reset,
+	input [31:0] freq,
+	output reg [31:0] phase );
+
+   always @(posedge clk)
+	   if (reset)
+		   phase <= 32'b0;
+	   else
+		   phase <= phase + freq;
+
+endmodule // phase_acc
+
 module display_driver(
 	input clk,
 	input [4:0] ones,
 	input [4:0] tens,
-	input [6:0] segments,
-	input digit_select );
+	output [6:0] segments,
+	output digit_select );
 
    reg [2:0]     display_state;
    reg [6:0]     ones_segments;
