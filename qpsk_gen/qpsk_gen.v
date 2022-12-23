@@ -113,18 +113,18 @@ module cordic(
 		    endcase
 	    end
 
-	    cordic_stage #(18,17,0) cordic_stage0(clk, reset, enable, x0, y0, z0, `c00, x1, y1, z1);
-	    cordic_stage #(18,17,1) cordic_stage1(clk, reset, enable, x1, y1, z1, `c01, x2, y2, z2);
-	    cordic_stage #(18,17,2) cordic_stage2(clk, reset, enable, x2, y2, z2, `c02, x3, y3, z3);
-	    cordic_stage #(18,17,3) cordic_stage3(clk, reset, enable, x3, y3, z3, `c03, x4, y4, z4);
-	    cordic_stage #(18,17,4) cordic_stage4(clk, reset, enable, x4, y4, z4, `c04, x5, y5, z5);
-	    cordic_stage #(18,17,5) cordic_stage5(clk, reset, enable, x5, y5, z5, `c05, x6, y6, z6);
-	    cordic_stage #(18,17,6) cordic_stage6(clk, reset, enable, x6, y6, z6, `c06, x7, y7, z7);
-	    cordic_stage #(18,17,7) cordic_stage7(clk, reset, enable, x7, y7, z7, `c07, x8, y8, z8);
-	    cordic_stage #(18,17,8) cordic_stage8(clk, reset, enable, x8, y8, z8, `c08, x9, y9, z9);
-	    cordic_stage #(18,17,9) cordic_stage9(clk, reset, enable, x9, y9, z9, `c09, x10, y10, z10);
-	    cordic_stage #(18,17,10) cordic_stage10(clk, reset, enable, x10, y10, z10, `c10, x11, y11, z11);
-	    cordic_stage #(18,17,11) cordic_stage11(clk, reset, enable, x11, y11, z11, `c11, x12, y12, z12);
+	    cordic_stage #(18,15,0) cordic_stage0(clk, reset, enable, x0, y0, z0, `c00, x1, y1, z1);
+	    cordic_stage #(18,15,1) cordic_stage1(clk, reset, enable, x1, y1, z1, `c01, x2, y2, z2);
+	    cordic_stage #(18,15,2) cordic_stage2(clk, reset, enable, x2, y2, z2, `c02, x3, y3, z3);
+	    cordic_stage #(18,15,3) cordic_stage3(clk, reset, enable, x3, y3, z3, `c03, x4, y4, z4);
+	    cordic_stage #(18,15,4) cordic_stage4(clk, reset, enable, x4, y4, z4, `c04, x5, y5, z5);
+	    cordic_stage #(18,15,5) cordic_stage5(clk, reset, enable, x5, y5, z5, `c05, x6, y6, z6);
+	    cordic_stage #(18,15,6) cordic_stage6(clk, reset, enable, x6, y6, z6, `c06, x7, y7, z7);
+	    cordic_stage #(18,15,7) cordic_stage7(clk, reset, enable, x7, y7, z7, `c07, x8, y8, z8);
+	    cordic_stage #(18,15,8) cordic_stage8(clk, reset, enable, x8, y8, z8, `c08, x9, y9, z9);
+	    cordic_stage #(18,15,9) cordic_stage9(clk, reset, enable, x9, y9, z9, `c09, x10, y10, z10);
+	    cordic_stage #(18,15,10) cordic_stage10(clk, reset, enable, x10, y10, z10, `c10, x11, y11, z11);
+	    cordic_stage #(18,15,11) cordic_stage11(clk, reset, enable, x11, y11, z11, `c11, x12, y12, z12);
 
 	    assign xo = x12[16:1];
 	    assign yo = y12[16:1];
