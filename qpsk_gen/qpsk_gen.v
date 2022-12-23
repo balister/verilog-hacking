@@ -34,7 +34,7 @@ module top(
       counter <= counter + 1;
    end
 
-   wire clk = counter[16];
+   wire clk = counter[4];
 
    wire [15:0] i_in = 16'd32767;
    wire [15:0] q_in = 0;
@@ -47,7 +47,7 @@ module top(
 
    wire reset = 0;
    wire enable = 1;
-   wire [31:0] freq = 1000;
+   wire [31:0] freq = 200;
 
    cordic cordic1(clk, reset, enable, i_in, q_in, i_out, q_out, phase[31:16], phase_out);
 
