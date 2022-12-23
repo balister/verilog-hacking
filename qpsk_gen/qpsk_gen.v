@@ -187,8 +187,8 @@ endmodule // phase_acc
 
 module display_driver(
 	input clk,
-	input [4:0] ones,
-	input [4:0] tens,
+	input [3:0] ones,
+	input [3:0] tens,
 	output [6:0] segments,
 	output digit_select );
 
