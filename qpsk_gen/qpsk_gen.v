@@ -110,6 +110,41 @@ module cordic(
 
 endmodule // cordic
 
+module cordic_stage (
+	input clk,
+	input reset,
+	input enable,
+	input [15:0] xi, yi,
+	input [15:0] zi,
+	input [15:0] constant,
+	output [15:0] xo, yo,
+	output [15:0] zo );
+
+	wire z_is_pos = ~zi[15];
+
+	reg [15:0] xo, yo;
+	reg [15:0] yo;
+
+	always@(posedge clk)
+		if (reset) begin
+			xo <= #1 0;
+			yo <= #1 0;
+			zo <= #1 0;
+		end
+		else if (enable) begin
+			xo <= #1 z_is_pos ?
+				xi - {{2{yi[15]}},yi[14:1]} :
+				xi + {{2{yi[15]}},yi[14:1]};
+			yo <= #1 z_is_pos ?
+				yi - {{2{xi[15]}},xi[14:1]} :
+				yi + {{2{xi[15]}},xi[14:1]};
+			zo <= #1 z_is_pos ?
+				zi - constant :
+				zi + constant;
+		end
+
+endmodule // cordic_stage
+
 module phase_acc(
 	input clk,
 	input reset,
