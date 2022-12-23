@@ -24,8 +24,11 @@ module top(
    // ones digit increments at ~6Hz.
    // display refreshes at 375 KHz.
    reg [29:0]     counter;
-   wire [3:0]     ones = counter[21+:4];
-   wire [3:0]     tens = counter[25+:4];
+//   wire [3:0]     ones = counter[21+:4];
+//   wire [3:0]     tens = counter[25+:4];
+
+   wire [3:0] ones = i_out[15:12];
+   wire [3:0] tens = q_out[15:12];
 
    always @(posedge CLK) begin
       counter <= counter + 1;
@@ -33,7 +36,7 @@ module top(
 
    wire clk = counter[16];
 
-   wire [15:0] i_in = 0;
+   wire [15:0] i_in = 16'd32767;
    wire [15:0] q_in = 0;
 
    wire [15:0] i_out;
