@@ -31,6 +31,25 @@ module top(
       counter <= counter + 1;
    end
 
+   wire clk = counter[16];
+
+   wire [15:0] i_in = 0;
+   wire [15:0] q_in = 0;
+
+   wire [15:0] i_out;
+   wire [15:0] q_out;
+
+   wire [31:0] phase;
+   wire [15:0] phase_out;
+
+   wire reset = 0;
+   wire enable = 1;
+   wire [31:0] freq = 1000;
+
+   cordic cordic1(clk, reset, enable, i_in, q_in, i_out, q_out, phase[31:16], phase_out);
+
+   phase_acc nco(clk, reset, freq, phase);
+
    display_driver display_count(CLK, ones, tens, seg_pins_n, digit_sel);
 
 endmodule // top
@@ -47,7 +66,7 @@ module cordic(
     reg [17:0] x0, y0;
     reg [14:0] z0;
     wire [17:0] x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12;
-    wire [17:0] y1, y2, y3, y4, y5, y6, x7, x8, x9, x10, x11, x12;
+    wire [17:0] y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12;
     wire [14:0] z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12;
 
     wire [17:0] xi_ext = {{2{xi[15]}}, xi};
@@ -86,23 +105,23 @@ module cordic(
 			    2'b01, 2'b10 :
 			    begin
 				    x0 <= #1 -xi_ext;
-				    yp <= #1 -yi_ext;
+				    y0 <= #1 -yi_ext;
 			    end
 		    endcase
 	    end
 
 	    cordic_stage #(18,17,0) cordic_stage0(clk, reset, enable, x0, y0, z0, `c00, x1, y1, z1);
-	    cordic_stage #(18,17,1) cordic_stage0(clk, reset, enable, x1, y1, z1, `c01, x2, y2, z2);
-	    cordic_stage #(18,17,2) cordic_stage0(clk, reset, enable, x2, y2, z2, `c02, x3, y3, z3);
-	    cordic_stage #(18,17,3) cordic_stage0(clk, reset, enable, x3, y3, z3, `c03, x4, y4, z4);
-	    cordic_stage #(18,17,4) cordic_stage0(clk, reset, enable, x4, y4, z4, `c04, x5, y5, z5);
-	    cordic_stage #(18,17,5) cordic_stage0(clk, reset, enable, x5, y5, z5, `c05, x6, y6, z6);
-	    cordic_stage #(18,17,6) cordic_stage0(clk, reset, enable, x6, y6, z6, `c06, x7, y7, z7);
-	    cordic_stage #(18,17,7) cordic_stage0(clk, reset, enable, x7, y7, z7, `c07, x8, y8, z8);
-	    cordic_stage #(18,17,8) cordic_stage0(clk, reset, enable, x8, y8, z8, `c08, x9, y9, z9);
-	    cordic_stage #(18,17,9) cordic_stage0(clk, reset, enable, x9, y9, z9, `c09, x10, y10, z10);
-	    cordic_stage #(18,17,10) cordic_stage0(clk, reset, enable, x10, y10, z10, `c10, x11, y11, z11);
-	    cordic_stage #(18,17,11) cordic_stage0(clk, reset, enable, x11, y11, z11, `c11, x12, y12, z12);
+	    cordic_stage #(18,17,1) cordic_stage1(clk, reset, enable, x1, y1, z1, `c01, x2, y2, z2);
+	    cordic_stage #(18,17,2) cordic_stage2(clk, reset, enable, x2, y2, z2, `c02, x3, y3, z3);
+	    cordic_stage #(18,17,3) cordic_stage3(clk, reset, enable, x3, y3, z3, `c03, x4, y4, z4);
+	    cordic_stage #(18,17,4) cordic_stage4(clk, reset, enable, x4, y4, z4, `c04, x5, y5, z5);
+	    cordic_stage #(18,17,5) cordic_stage5(clk, reset, enable, x5, y5, z5, `c05, x6, y6, z6);
+	    cordic_stage #(18,17,6) cordic_stage6(clk, reset, enable, x6, y6, z6, `c06, x7, y7, z7);
+	    cordic_stage #(18,17,7) cordic_stage7(clk, reset, enable, x7, y7, z7, `c07, x8, y8, z8);
+	    cordic_stage #(18,17,8) cordic_stage8(clk, reset, enable, x8, y8, z8, `c08, x9, y9, z9);
+	    cordic_stage #(18,17,9) cordic_stage9(clk, reset, enable, x9, y9, z9, `c09, x10, y10, z10);
+	    cordic_stage #(18,17,10) cordic_stage10(clk, reset, enable, x10, y10, z10, `c10, x11, y11, z11);
+	    cordic_stage #(18,17,11) cordic_stage11(clk, reset, enable, x11, y11, z11, `c11, x12, y12, z12);
 
 	    assign xo = x12[16:1];
 	    assign yo = y12[16:1];
@@ -114,16 +133,20 @@ module cordic_stage (
 	input clk,
 	input reset,
 	input enable,
-	input [15:0] xi, yi,
-	input [15:0] zi,
-	input [15:0] constant,
-	output [15:0] xo, yo,
-	output [15:0] zo );
+	input [bitwidth-1:0] xi, yi,
+	input [zwidth-1:0] zi,
+	input [zwidth-1:0] constant,
+	output [bitwidth-1:0] xo, yo,
+	output [zwidth-1:0] zo );
 
-	wire z_is_pos = ~zi[15];
+	parameter bitwidth = 16;
+	parameter zwidth = 16;
+	parameter shift = 1;
 
-	reg [15:0] xo, yo;
-	reg [15:0] yo;
+	wire z_is_pos = ~zi[zwidth-1];
+
+	reg [bitwidth-1:0] xo, yo;
+	reg [zwidth-1:0] zo;
 
 	always@(posedge clk)
 		if (reset) begin
@@ -133,11 +156,11 @@ module cordic_stage (
 		end
 		else if (enable) begin
 			xo <= #1 z_is_pos ?
-				xi - {{2{yi[15]}},yi[14:1]} :
-				xi + {{2{yi[15]}},yi[14:1]};
+				xi - {{shift+1{yi[bitwidth-1]}},yi[bitwidth-2:shift]} :
+				xi + {{shift+1{yi[bitwidth-1]}},yi[bitwidth-2:shift]};
 			yo <= #1 z_is_pos ?
-				yi - {{2{xi[15]}},xi[14:1]} :
-				yi + {{2{xi[15]}},xi[14:1]};
+				yi - {{shift+1{xi[bitwidth-1]}},xi[bitwidth-2:shift]} :
+				yi + {{shift+1{xi[bitwidth-1]}},xi[bitwidth-2:shift]};
 			zo <= #1 z_is_pos ?
 				zi - constant :
 				zi + constant;
